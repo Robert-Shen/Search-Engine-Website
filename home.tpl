@@ -38,6 +38,7 @@
     <form action="/" method="get">
         <div class="search">
             <input class="textbox" name="keywords" type="text" spellcheck="false" maxlength="2048" placeholder="What are you looking for?" required>
+            <input type="hidden" name="page_no" value="1">
             <input class="button" type="submit" value="Search">
         </div>
     </form>

@@ -230,14 +230,12 @@ class crawler(object):
         # print "document title="+ repr(title_text)
 
         # TODO update document title for document id self._curr_doc_id
+
+        # parse title and save to cache
         if not self._doc_title_cache.has_key(self._curr_doc_id):
             title1 = unicode(BeautifulStoneSoup(title_text, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
-            print '================ %s' % title1
             title2 = unicodedata.normalize('NFKD', title1)
-            print '================ %s' % title2
-            title3 = HTMLParser.HTMLParser().unescape(title2).replace("\u2013", "-")
-            print '================ %s' % title3
-            
+            title3 = HTMLParser.HTMLParser().unescape(title2).replace("\u2013", "-")            
             self._doc_title_cache[self._curr_doc_id] = str(title3)
 
     def _visit_a(self, elem):
@@ -445,10 +443,18 @@ class crawler(object):
             '''
         )
         pageRankScoresData = [(int(docId), float(score)) for docId, score in pageRankScores.items()]
+        unscoredLinks = [(int(docId), float(0.0)) for docId 
+                                                  in self._doc_id_cache.values() 
+                                                  if docId not in pageRankScores.keys()]
         self.cur.executemany(
             ''' INSERT INTO pageRankScores VALUES (?,?)
             ''',
             pageRankScoresData
+        )
+        self.cur.executemany(
+            ''' INSERT INTO pageRankScores VALUES (?,?)
+            ''',
+            unscoredLinks
         )
         self.db_conn.commit()
 
@@ -466,10 +472,6 @@ class crawler(object):
             docTitles
         )
         self.db_conn.commit()
-
-        # import pprint
-        # print '=============================================================================='
-        # pprint.pprint(invertedIdData)
 
     def get_inverted_index(self):
         return self._inverted_index

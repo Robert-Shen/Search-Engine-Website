@@ -1,0 +1,188 @@
+body{
+  background-color:#fafafa;
+  	margin:0;
+
+}
+.header{
+    min-width:1302px;
+    width: 100%;
+    position:relative;
+    height:84px;
+    background-color:#f2f2f2;
+    box-sizing: border-box;
+    border-bottom: 1px solid #e1e1e1;
+    }
+.logo{
+      position:absolute;
+
+    }
+      .search{
+
+      position:absolute;
+      left:90px;
+      top:20px;
+      width:600px;
+}
+.textbox:hover{
+	box-shadow:0 3px 5px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
+}
+.textbox:focus{
+  box-shadow:0 3px 8px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
+
+}
+
+.textbox{
+    float:left;
+    outline: none;
+    padding: 5px 16px ;
+    padding-right:50px;
+    height:44px;
+    width:600px;
+    box-sizing: border-box;
+    border: none;
+    font-size:large;
+    font-family:arial,sans-serif;
+    border-radius: 2px 0px 0px 2px;
+      transition: 200ms;
+    -webkit-transition: 200ms;
+    box-shadow:0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
+
+}
+.mag{
+       position:absolute;
+       float:right;
+       right:15px;
+       top:10px;
+       outline: none;
+       }
+
+.header1{
+ display:inline-block;
+     padding:12px;
+    position:absolute;
+    right:89px;
+    }
+
+
+.header2{
+  display:inline-block;
+    position:absolute;
+     padding:20px;
+     right:0px;
+     }
+
+.header3{
+  display:inline-block;
+    position:absolute;
+     padding:10px;
+     right:150px;
+     }
+.login{
+    height: 29px;
+    width: 69px;
+    background-image: -webkit-linear-gradient(top,#4387fd,#4683ea);
+    border: 1px solid #4285f4;
+    font-family:arial,sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    outline:none;
+    border-radius: 3px;
+
+
+}
+ .login:hover{
+  box-shadow:0 3px 3px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
+  background: #317ef3;
+}
+
+.login:active{
+  background:#3075d3;
+    box-shadow:0 3px 3px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
+  }
+
+.content{
+      width:600px;
+      margin-left:90px;
+      height:650px;
+      position:relative;
+}
+.content a{
+              display:block;
+              color: #1a0dab;
+              font-size: 18px;
+              white-space: nowrap;
+              font-weight:normal;
+              font-family: arial,sans-serif;
+              text-decoration-style:solid;
+              text-decoration-line:none;
+              margin-left:30px;
+              margin-top:30px;
+              position:relative;
+}
+.content cite{
+              white-space: nowrap;
+              color: #006621;;
+              font-size: 18px;
+              white-space: nowrap;
+              font-weight:normal;
+              font-size: small;
+              font-family: arial,sans-serif;
+              text-decoration-line:none;
+              margin-left:30px;
+              position:relative;
+}
+.content {
+              display:block;
+              color: black;
+              font-size: 18px;
+              white-space: nowrap;
+              font-weight:normal;
+              font-family: arial,sans-serif;
+              text-decoration-style:solid;
+              text-decoration-line:none;
+              margin-left:30px;
+              margin-top:30px;
+              position:relative;
+}
+.index{
+        position:absolute;
+        bottom: 0;
+        left:128.24px;
+}
+.pagination {
+    display: inline-block;
+}
+
+.pagination button {
+    color: black;
+    float: left;
+    padding: 8px 16px;
+    text-decoration: none;
+    border: 1px solid #e1e1e1;
+    background-color:#f2f2f2;
+    transition: background-color .3s;
+    font-family:arial,sans-serif;
+
+
+}
+
+.pagination .active {
+    background-image: -webkit-linear-gradient(top,#4387fd,#4683ea);
+    color: white;
+    border: 1px solid #4285f4;
+
+}
+
+.pagination button:hover:not(.active) {background-color: #d4d4d4;}
+.pagination button:active:not(.active) {background-color: #b3b3b3;}
+
+.pagination button:first-child {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+.pagination button:last-child {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}

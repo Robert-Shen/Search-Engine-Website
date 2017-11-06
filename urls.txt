@@ -1,2 +1,5 @@
 http://www.eecg.toronto.edu/
+https://www.utoronto.ca/
 https://www.google.ca/
+https://www.ece.utoronto.ca/
+http://web.cs.toronto.edu/
