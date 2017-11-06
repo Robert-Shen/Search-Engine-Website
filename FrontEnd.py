@@ -72,7 +72,7 @@ def login():
 	                                                       key=operator.itemgetter(1))
 	    	# Reverse the list to start from large to small (according to value, not key)
 	    	    popularKeywords = sortedGlobalKywds[::-1]
-
+        response.set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
     	return template('home',
                         popularKeywords=popularKeywords,
                         loggin=loggin, 
@@ -93,7 +93,6 @@ def login():
                     globalKeywords[email][word] = globalKeywords[email][word] + wordCount
                 else:
                     globalKeywords[email][word] = wordCount
-        response.set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
         urls=resultUrls(keywords)
         if urls is not None:
             search = urls[(int(page_no) * 5 - 5):(int(page_no) * 5)]
@@ -107,10 +106,12 @@ def login():
                     pagination[n]=('active',n+1)
                 else:
                     pagination[n]=('None',n+1)
+	    response.set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
             return template('search',loggin=loggin,userInfo=s,pgn=pagination,srch=search,
                                 keywords=keywords,currentpage=int(page_no),maxpage=total)
         else:
-                return template('search',loggin=loggin,userInfo=s,pgn=[],srch=[],
+            response.set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
+	    return template('search',loggin=loggin,userInfo=s,pgn=[],srch=[],
                                 keywords=keywords,currentpage=1,maxpage=1)
         '''
         return template('result', searchedKeywords=keywords,
