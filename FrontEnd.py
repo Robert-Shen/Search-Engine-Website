@@ -1,5 +1,5 @@
 import operator
-from bottle import get, post, request, run, template, route, redirect, get,response,static_file,error
+from bottle import get, post, request, run, template, route, redirect, get, response, static_file, error
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.client import flow_from_clientsecrets
 from googleapiclient.errors import HttpError
@@ -8,6 +8,7 @@ import httplib2
 from beaker.middleware import SessionMiddleware
 import bottle
 from resultUrlsHelper import resultUrls
+
 ############################################################################################
 # If currently is testing on local machine, set this to True;
 # before upload to AWS server, set this to False
@@ -15,15 +16,15 @@ isLocalServer = False
 ############################################################################################
 
 globalKeywords = {}
-CLIENT_ID="233110759621-pf3h9kl3ibncdvvdhkjcepvluedbuj2i.apps.googleusercontent.com"
-CLIENT_SECRET="9x8veppsNgk0ZrGzxWy5RR-_"
-SCOPE=['profile','email']
-ROOT="http://ec2-52-5-119-86.compute-1.amazonaws.com"
-REDIRECT_URI="http://ec2-52-5-119-86.compute-1.amazonaws.com/redirect"
-cache=[]
+CLIENT_ID = "233110759621-pf3h9kl3ibncdvvdhkjcepvluedbuj2i.apps.googleusercontent.com"
+CLIENT_SECRET = "9x8veppsNgk0ZrGzxWy5RR-_"
+SCOPE = ['profile', 'email']
+ROOT = "http://ec2-52-5-119-86.compute-1.amazonaws.com"
+REDIRECT_URI = "http://ec2-52-5-119-86.compute-1.amazonaws.com/redirect"
+cache = []
 if isLocalServer:
-    ROOT="http://localhost:8080"
-    REDIRECT_URI="http://localhost:8080/redirect"
+    ROOT = "http://localhost:8080"
+    REDIRECT_URI = "http://localhost:8080/redirect"
 
 session_opts = {
     'session.type': 'file',
@@ -36,27 +37,33 @@ app = SessionMiddleware(bottle.app(), session_opts)
 
 @route('/<filename:path>')
 def send_static(filename):
-    return static_file(filename,root="css/")
+    return static_file(filename, root="css/")
+
+
 @error(404)
 def error404(error):
     return template("error")
+
+
 # Initialize home page
 @route('/result')
 def redir():
     redirect(str('/'))
+
+
 @route('/')
 def login():
     global cache
-    cache=request.url
+    cache = request.url
     s = request.environ.get('beaker.session')
     if 'user' in s:
-        email=s['user']
-	loggin=1
-    	if email not in globalKeywords:
-            globalKeywords[email]={}
+        email = s['user']
+        loggin = 1
+        if email not in globalKeywords:
+            globalKeywords[email] = {}
     else:
-        loggin=0
-    
+        loggin = 0
+
     keywords = request.query.get('keywords')
     page_no = request.query.get('page_no')
     localKeywords = []
@@ -64,19 +71,19 @@ def login():
     # If we dont receive any input keywords, return to home page
 
     if not keywords:
-    	popularKeywords = None
-    	if loggin:
-	        if globalKeywords[email]:
-	    	# Sort the dict into a list of tuples from small to large (according to value, not key)
-	    	    sortedGlobalKywds = sorted(globalKeywords[email].items(),
-	                                                       key=operator.itemgetter(1))
-	    	# Reverse the list to start from large to small (according to value, not key)
-	    	    popularKeywords = sortedGlobalKywds[::-1]
+        popularKeywords = None
+        if loggin:
+            if globalKeywords[email]:
+                # Sort the dict into a list of tuples from small to large (according to value, not key)
+                sortedGlobalKywds = sorted(globalKeywords[email].items(),
+                                           key=operator.itemgetter(1))
+                # Reverse the list to start from large to small (according to value, not key)
+                popularKeywords = sortedGlobalKywds[::-1]
         response.set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
-    	return template('home',
+        return template('home',
                         popularKeywords=popularKeywords,
-                        loggin=loggin, 
-                        userInfo=s, 
+                        loggin=loggin,
+                        userInfo=s,
                         root=ROOT)
     else:
         lowerCase = keywords.lower().split()
@@ -95,23 +102,39 @@ def login():
                     globalKeywords[email][word] = wordCount
         urls=resultUrls(keywords)
         if urls is not None:
-            search = urls[(int(page_no) * 5 - 5):(int(page_no) * 5)]
-            total = len(urls)/5
+            search = urls[(int(page_no) * 7 - 7):(int(page_no) * 7)]
+            total = len(urls)/7
 
-            if len(urls)%5 is not 0:
+            if len(urls)%7 is not 0:
                 total = total+1
-            pagination=[None]*total
-            for n in range(total):
+            if total < 5:
+                i=0
+                j=total
+                pagination = [None] * total
+            elif int(page_no)-3 <= 0:
+                i=0
+                j=5
+                pagination = [None] * 5
+            elif total-int(page_no) <= 2:
+                i=total-5
+                j=total
+                pagination = [None] * 5
+            else:
+                i=int(page_no)-3
+                j=int(page_no)+2
+                pagination = [None] * 5
+            for n in range(i,j):
                 if (n+1) is int(page_no):
-                    pagination[n]=('active',n+1)
+                    pagination[n-i]=('active',n+1)
                 else:
-                    pagination[n]=('None',n+1)
-	    response.set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
+                    pagination[n-i]=('None',n+1)
+            print pagination
+            response.set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
             return template('search',loggin=loggin,userInfo=s,pgn=pagination,srch=search,
                                 keywords=keywords,currentpage=int(page_no),maxpage=total)
         else:
             response.set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
-	    return template('search',loggin=loggin,userInfo=s,pgn=[],srch=[],
+            return template('search',loggin=loggin,userInfo=s,pgn=[],srch=[],
                                 keywords=keywords,currentpage=1,maxpage=1)
         '''
         return template('result', searchedKeywords=keywords,
@@ -121,20 +144,24 @@ def login():
                                   userInfo=s, 
                                   root=ROOT)
         '''
+
+
 @route('/login')
 def home():
     flow = flow_from_clientsecrets("client_secret_local.json",
-                                  scope='https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/userinfo.email',
-                                  redirect_uri=REDIRECT_URI)
+                                   scope='https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/userinfo.email',
+                                   redirect_uri=REDIRECT_URI)
     uri = flow.step1_get_authorize_url()
-    redirect(str(uri))    
+    redirect(str(uri))
+
+
 @route('/redirect')
 def redirect_page():
-    code = request.query.get('code','')
-    flow = OAuth2WebServerFlow( client_id=CLIENT_ID,
- 				client_secret=CLIENT_SECRET,
-				scope=SCOPE,
-				redirect_uri=REDIRECT_URI) 
+    code = request.query.get('code', '')
+    flow = OAuth2WebServerFlow(client_id=CLIENT_ID,
+                               client_secret=CLIENT_SECRET,
+                               scope=SCOPE,
+                               redirect_uri=REDIRECT_URI)
     credentials = flow.step2_exchange(code)
     token = credentials.id_token['sub']
     http = httplib2.Http()
@@ -146,18 +173,22 @@ def redirect_page():
     user_name = user_document['name']
     user_picture = user_document['picture']
     s = request.environ.get('beaker.session')
-    s['user'] = user_email  
+    s['user'] = user_email
     s['name'] = user_name
     s['picture'] = user_picture
     s.save()
     redirect(str(cache))
+
+
 @route('/logout')
 def logout():
     s = request.environ.get('beaker.session')
     s.delete()
     redirect(str(cache))
+
+
 # Start server
 if isLocalServer:
-    run(app=app,host='localhost', port=8080, debug=True)
+    run(app=app, host='localhost', port=8080, debug=True)
 else:
-    run(app=app,host='0.0.0.0', port=80)
+    run(app=app, host='0.0.0.0', port=80)
