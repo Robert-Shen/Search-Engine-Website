@@ -186,3 +186,24 @@ body{
     border-top-right-radius: 2px;
     border-bottom-right-radius: 2px;
 }
+
+.sug {
+    width:600px;
+    margin-left:30px;
+    height:30px;
+    position:relative;
+}
+
+.suggest{
+    font-family: arial,sans-serif;
+    font-weight: normal;   
+    margin-left:30px; 
+}
+.spell{
+    font-size: 18px;
+    text-decoration:none;
+}
+.spell_orig{
+    font-size: 15px;
+    text-decoration:none;
+}

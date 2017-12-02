@@ -145,3 +145,9 @@ body{
   }
 
 
+  .texts {
+      text-align:left !important;
+      width:  548px !important;
+      margin:0 auto;
+      /* transition: 200ms; */
+}

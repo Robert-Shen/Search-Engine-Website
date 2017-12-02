@@ -3,8 +3,12 @@
 
   <head>
   <title>homepage</title>
-	<meta charset="utf-8">     
+	<meta charset="utf-8"> 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+  <script src="autocomplete.js"></script>    
 	<link rel="stylesheet" type="text/css" href="home.css"/>
+  <link rel="stylesheet" type="text/css" href="jquery-ui.css"/>
   </head>
 
   <body>
@@ -41,12 +45,13 @@
             <input type="hidden" name="page_no" value="1">
             <input class="button" type="submit" value="Search">
         </div>
+       <div class="texts" id="srch-result"></div>
+
     </form>
     </div>
-
+    
     %if popularKeywords is not None:
       %listLength = len(popularKeywords)
-
       <table id=”history”>
         <tr>
           <td><b>Word</b></td>

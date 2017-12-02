@@ -1,3 +1,4 @@
+import datamuse
 import operator
 from bottle import get, post, request, run, template, route, redirect, get, response, static_file, error
 from oauth2client.client import OAuth2WebServerFlow
@@ -12,7 +13,7 @@ from resultUrlsHelper import resultUrls
 ############################################################################################
 # If currently is testing on local machine, set this to True;
 # before upload to AWS server, set this to False
-isLocalServer = False
+isLocalServer = True
 ############################################################################################
 
 globalKeywords = {}
@@ -100,7 +101,27 @@ def login():
                     globalKeywords[email][word] = globalKeywords[email][word] + wordCount
                 else:
                     globalKeywords[email][word] = wordCount
-        urls=resultUrls(keywords)
+        
+        # spell correction check
+        try:
+            api = datamuse.Datamuse()
+            query = api.suggest(s=keywords ,max=10)
+            query_score = int(query[0]['score'])
+            query_sug = str(query[0]['word'])
+            print query_sug
+            print query_score
+            if query_score < 1000:
+                raise ValueError('score too low')
+            keywords_suggested = query_sug
+        except (IndexError,ValueError):
+        # spell correct each word if full sentence does not have valid predict
+            lowerCase = [str(api.suggest(s=x,max=10)[0]['word']) 
+                        if int(api.suggest(s=x,max=10)[0]['score'])>1000 
+                        else x for x in lowerCase]
+            keywords_suggested = " ".join(lowerCase)
+            print keywords_suggested
+
+        urls=resultUrls(keywords_suggested)
         if urls is not None:
             search = urls[(int(page_no) * 7 - 7):(int(page_no) * 7)]
             total = len(urls)/7
@@ -131,11 +152,11 @@ def login():
             print pagination
             response.set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
             return template('search',loggin=loggin,userInfo=s,pgn=pagination,srch=search,
-                                keywords=keywords,currentpage=int(page_no),maxpage=total)
+                                keywords=keywords,key_sug=keywords_suggested,currentpage=int(page_no),maxpage=total)
         else:
             response.set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
             return template('search',loggin=loggin,userInfo=s,pgn=[],srch=[],
-                                keywords=keywords,currentpage=1,maxpage=1)
+                                keywords=keywords,key_sug=keywords_suggested,currentpage=1,maxpage=1)
         '''
         return template('result', searchedKeywords=keywords,
                                   localKeywords=localKeywords, 

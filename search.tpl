@@ -4,7 +4,11 @@
   <head>
   <title>searchpage</title>
 	<meta charset="utf-8">
-	<link rel="stylesheet" type="text/css" href="search.css"/>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+  <script src="autocomplete.js"></script>
+  <link rel="stylesheet" type="text/css" href="search.css"/>
+  <link rel="stylesheet" type="text/css" href="jquery-ui.css"/>
   </head>
 <body>
   <div class="header">
@@ -17,6 +21,7 @@
       <div class="search">
         <input class="textbox" name="keywords" type="text" spellcheck="false" maxlength="2048" placeholder="What are you looking for?" required>
         <input type="hidden" name="page_no" value="1">
+        <div class="texts" id="srch-result" style="margin-top: 44px;margin-left: 1px;"></div>
         <input type="image" src="mgf.png" class="mag" width="24" height="24">
       </div>
       </form>
@@ -41,13 +46,25 @@
       </div>
     %end
   </div>
+ %if keywords != key_sug:
+     <div class="sug">
+     <p class = "suggest">
+      <span class = "spell">Showing result for</span>
+      <a class ="spell" href="/?keywords={{"+".join(key_sug.split())}}&page_no=1">{{key_sug}}</a>
+      <br>
+      <span class = "spell_orig">Search instead for</span>
+      <a class ="spell_orig" href="/?keywords={{"+".join(keywords.split())}}&page_no=1">{{keywords}}</a>     
+      <br>
+      </p>
+      </div>
+      %end
  <div class="content">
      %for n in srch:
      <a href={{n[0]}}>{{n[1]}}</a>
      <cite>{{n[0]}}</cite>
      %end
      %if not srch:
-     <p>Oops, nothing is found...</p>
+     <p style="margin-left:30px;">Oops, nothing is found...</p>
      %end
  <div class="index">
      <form action="/" method="get">
