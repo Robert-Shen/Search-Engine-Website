@@ -1,8 +1,9 @@
 Server public ip:
 52.5.119.86
+ec2-52-5-119-86.compute-1.amazonaws.com
 
 scp -r -o StrictHostKeyChecking=no -i KeyPair.pem FrontEnd.py ubuntu@52.5.119.86:~/FrontEnd.py
-scp -r -o StrictHostKeyChecking=no -i KeyPair.pem client_secret_local.json ubuntu@52.5.119.86:~/client_secret_local.json
+scp -r -o StrictHostKeyChecking=no -i KeyPair.pem resultUrlsHelper.py ubuntu@52.5.119.86:~/resultUrlsHelper.py
 scp -r -o StrictHostKeyChecking=no -i KeyPair.pem home.tpl ubuntu@52.5.119.86:~/home.tpl
 scp -r -o StrictHostKeyChecking=no -i KeyPair.pem result.tpl ubuntu@52.5.119.86:~/result.tpl
 
@@ -12,7 +13,8 @@ scp -r -i KeyPair.pem ubuntu@52.5.119.86:~/css/ /Users/SZP/desktop/temp/css/
 cd desktop/326lab
 cd desktop/csc326/lab
 ssh -i KeyPair.pem ubuntu@52.5.119.86
-sudo nohop python FrontEnd.py &
+sudo nohup python FrontEnd.py &
+sudo python FrontEnd.py
 exit
 > return process ID
 sudo kill <process ID>
@@ -22,4 +24,4 @@ scp ./desktop/lab2_group_52.zip shenzi@ug180.eecg.utoronto.ca:~/lab2_group_52.zi
 ssh shenzi@ug180.eecg.utoronto.ca
 submitcsc326f-lab 2 lab2_group_52.zip
 
-process #:
+process #: 1411
