@@ -23,6 +23,7 @@ from searcher import GetResults
 myTemplate = r'%s/frontend/views/' % rootDir
 bottle.TEMPLATE_PATH.insert(0,myTemplate)
 
+# for user login session and google login api
 globalKeywords = {}
 CLIENT_ID = "233110759621-pf3h9kl3ibncdvvdhkjcepvluedbuj2i.apps.googleusercontent.com"
 CLIENT_SECRET = "9x8veppsNgk0ZrGzxWy5RR-_"
@@ -30,6 +31,7 @@ SCOPE = ['profile', 'email']
 ROOT = '' # will be initialize in startServer()
 REDIRECT_URI = '' # will be initialize in startServer()
 cache = []
+CLIENT_SECRET_LOCAL_JSON = r'%s/credential/client_secret_local.json' % rootDir
 
 session_opts = {
     'session.type': 'file',
@@ -173,7 +175,7 @@ def login():
 
 @route('/login')
 def home():
-    flow = flow_from_clientsecrets("client_secret_local.json",
+    flow = flow_from_clientsecrets(CLIENT_SECRET_LOCAL_JSON,
                                    scope='https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/userinfo.email',
                                    redirect_uri=REDIRECT_URI)
     uri = flow.step1_get_authorize_url()
