@@ -9,7 +9,7 @@ MAX_TITILE_LENGTH = 72
 
 '''
 Find the links that are related to the first keyword of input keywords string.
-Return list [(url1, title1), (url2, title2), ...]
+Return list [(url1, title1, snippet1), (url2, title2, snippet2), ...]
 if title of the url not exist, then title = url
 '''
 def GetResults(seachString):
@@ -207,18 +207,21 @@ def GetResults(seachString):
 
     pprint.pprint(finalPagerank)
 
-    # add titles
+    # get titles
     docTitles = GetAllTitles(cur) # key: docID, value: title
+    # get snippets
+    docSnippets = GetAllSnippets(cur)
 
-    # append titles to urls
+    # append titles and snippets to urls
     result = []
     for page in finalPagerank:
         docId = page[0]
         docUrl = docIdToUrl[docId]
+        snippet = docSnippets[docId]
         if docTitles.has_key(docId):
-            result.append((docUrl, ParsedTitle(docTitles[docId])))
+            result.append((docUrl, ParsedTitle(docTitles[docId]), snippet))
         else:
-            result.append((docUrl, ParsedUrlTitle(docUrl)))
+            result.append((docUrl, ParsedUrlTitle(docUrl), snippet))
 
     # terminate db connetion and return
     dbConnection.close()
@@ -276,7 +279,6 @@ def GetCacheHitsByWord(cur, word):
 
 def GetAllTitles(cur):
     # docTitle: docId (INTEGER), title (TEXT)
-    cur.execute('SELECT * FROM docTitle;')
     cur.execute(
         ''' SELECT *
             FROM docTitle;
@@ -286,6 +288,18 @@ def GetAllTitles(cur):
     for q in query:
         docTitles[q[0]] = q[1]
     return docTitles
+
+def GetAllSnippets(cur):
+    # docSnippet: docId (INTEGER), snippet (TEXT)
+    cur.execute(
+        ''' SELECT *
+            FROM docSnippet;
+        ''')
+    query = cur.fetchall()
+    docSnippets = {}  # key: docID, value: snippet
+    for q in query:
+        docSnippets[q[0]] = q[1]
+    return docSnippets
 
 '''
 Trim the title of url to a limited number of chars (specified by MAX_TITILE_LENGTH)

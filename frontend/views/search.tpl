@@ -62,6 +62,7 @@
      %for n in srch:
      <a href={{n[0]}}>{{n[1]}}</a>
      <cite>{{n[0]}}</cite>
+     <p>{{n[2]}}</p>
      %end
      %if not srch:
      <p style="margin-left:30px;">Oops, nothing is found...</p>

@@ -27,6 +27,7 @@ import sqlite3
 import HTMLParser
 import unicodedata
 import pagerank
+from os.path import abspath, dirname
 
 def attr(elem, attr):
     """An html attribute from an html element. E.g. <a href="">, then
@@ -73,12 +74,15 @@ class crawler(object):
         # the dest link and therefore weighted higher
         # Key: docId, value: list of (wordId, anchorFontSize=10)
         self._doc_anchorHits_cache = {}
+        # lab4: cache to store a snippet of docId
+        # key: docId, value: text of snippet
+        self._doc_snippet_cache = {}
 
         # start db connection
         self.db_conn = db_conn
         self.cur = db_conn.cursor()
 
-        # we have 7 tables stored in the db:
+        # we have 8 tables stored in the db:
         # lexicon: wordId (INTEGER PRIMARY KEY), word (TEXT)
         # documentId: docId (INTEGER PRIMARY KEY), url (TEXT)
         # invertedId: wordId (INTEGER), docId (INTEGER)
@@ -86,6 +90,7 @@ class crawler(object):
         # docTitle: docId (INTEGER), title (TEXT)
         # docWordHits: docId (INTEGER), wordId (INTEGER), fontSize (INTEGER), wordLocation (INTEGER)
         # docAnchorHits: docId (INTEGER), wordId (INTEGER), anchorFontSize (INTEGER)
+        # docSnippet: docId (INTEGER), snippet (TEXT)
 
         # restart db every run the crawler
         self.cur.executescript(
@@ -96,7 +101,8 @@ class crawler(object):
             DROP TABLE IF EXISTS pageRankScores;
             DROP TABLE IF EXISTS docTitle;
             DROP TABLE IF EXISTS docWordHits;
-            DROP TABLE IF EXISTS docAnchorHits
+            DROP TABLE IF EXISTS docAnchorHits;
+            DROP TABLE IF EXISTS docSnippet;
             '''
         )
 
@@ -147,7 +153,10 @@ class crawler(object):
         ])
 
         # set of words to ignore
-        ignoredWordsFile = open('stopwords.txt', 'r')
+        curPath = abspath(__file__)
+        dirPath = abspath(dirname(curPath))
+        stopwordsFile = r'%s/stopwords.txt' % dirPath
+        ignoredWordsFile = open(stopwordsFile, 'r')
         ignoredWords = [line.strip('\n') for line in ignoredWordsFile.readlines()]
         ignoredWordsFile.close()
         self._ignored_words = ignoredWords
@@ -292,6 +301,21 @@ class crawler(object):
         # print "    num words="+ str(len(self._curr_words))
         self._doc_wordHits_cache[self._curr_doc_id] = self._curr_words
 
+    def _add_first_p_to_document(self, soup):
+        firstParagraph = soup.find('p')
+        if firstParagraph is None:
+            self._doc_snippet_cache[self._curr_doc_id] = 'Snippet not available'
+        else:
+            currSnippet = firstParagraph.text
+            if currSnippet is None:
+                self._doc_snippet_cache[self._curr_doc_id] = 'Snippet not available'
+            else:
+                if not self._doc_snippet_cache.has_key(self._curr_doc_id):
+                    snippet1 = unicode(BeautifulStoneSoup(currSnippet, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
+                    snippet2 = unicodedata.normalize('NFKD', snippet1)
+                    snippet3 = HTMLParser.HTMLParser().unescape(snippet2).replace("\u2013", "-")
+                    self._doc_snippet_cache[self._curr_doc_id] = str(snippet3)
+
     def _increase_font_factor(self, factor):
         """Increade/decrease the current font size."""
         def increase_it(elem):
@@ -410,6 +434,7 @@ class crawler(object):
                 self._curr_wordIndex = 0
                 self._index_document(soup, doc_id)
                 self._add_words_to_document()
+                self._add_first_p_to_document(soup)
                 print "    url="+repr(self._curr_url)
 
             except Exception as e:
@@ -544,6 +569,21 @@ class crawler(object):
         )
         self.db_conn.commit()
 
+        # save docSnippet data to presistent stroage
+        # docSnippet: docId (INTEGER), snippet (TEXT)
+        self.cur.execute(
+            ''' CREATE TABLE IF NOT EXISTS docSnippet
+                (docId INTEGER, snippet TEXT);
+            '''
+        )
+        docSnippets = [(docId, snippet) for docId, snippet in self._doc_snippet_cache.items()]
+        self.cur.executemany(
+            ''' INSERT INTO docSnippet VALUES (?,?)
+            ''',
+            docSnippets
+        )
+        self.db_conn.commit()
+
     def get_inverted_index(self):
         return self._inverted_index
 
@@ -559,8 +599,18 @@ class crawler(object):
 
 
 if __name__ == "__main__":
-    dbConnection = sqlite3.connect('database.db')
+    # get database path
+    curPath = abspath(__file__)
+    rootDir = abspath(dirname(dirname(curPath)))
+    dbFile = r'%s/searcher/database.db' % rootDir
+
+    # connect to database
+    dbConnection = sqlite3.connect(dbFile)
     dbConnection.text_factory = str
-    bot = crawler(dbConnection, "urlsList.txt")
+
+    # start crawling
+    bot = crawler(dbConnection, 'urlsList.txt')
     bot.crawl(depth=1)
+
+    # close database
     dbConnection.close()
