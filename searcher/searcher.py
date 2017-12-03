@@ -2,8 +2,8 @@ import sqlite3
 import pprint
 import sys
 import textwrap
-from math import *
-from os.path import *
+from math import sqrt, pow
+from os.path import dirname, abspath
 
 MAX_TITILE_LENGTH = 72
 
@@ -31,7 +31,8 @@ def GetResults(seachString):
             keywords.add(word)
 
     # connect to db
-    dbConnection = sqlite3.connect('database.db')
+    database = r'%s/searcher/database.db' % rootDir
+    dbConnection = sqlite3.connect(database)
     dbConnection.text_factory = str
     cur = dbConnection.cursor()
 
@@ -83,8 +84,11 @@ def GetResults(seachString):
     for rawDocId,numAppear in countDocIds.items():
         if numAppear >= MIN_EXPECTED_APPEAR_OF_KEYWORDS:
             validDocIds.append(rawDocId)
-    print '>>>>>>>>>>>>>>>>>'
-    print validDocIds
+
+    # pre-check search result
+    # if validDocIds is empty, then no search matched and return None
+    if len(validDocIds) == 0:
+        return None
 
     docWithWordHits = {} # key: docId, value: [(wordIndex, fontSize, wordLocation), (wordIndex, fontSize, wordLocation), ...]
     wordIndex = 0
@@ -112,7 +116,7 @@ def GetResults(seachString):
 
         t = 0 # currentPtr
         while t <= (len(doc)-NUM_KEYWORDS):
-            check = []
+            check = [] # [(wordIndex, fontSize, wordLocation), ...]
             for i in range(NUM_KEYWORDS):
                 check.append(doc[t+i])
 
@@ -145,7 +149,7 @@ def GetResults(seachString):
                         m += 1
                         n += 1
                 if numProximity >= PROXIMITY_GOAL:
-                    averageFontSize = reduce(lambda x,y: x[1]+y[1], check)
+                    averageFontSize = reduce(lambda x,y: (0,x[1]+y[1]), check)[1]
                     proximityScore = numProximity * averageFontSize
                     if docId not in proximityScores.keys():
                         proximityScores[docId] = proximityScore
@@ -188,11 +192,15 @@ def GetResults(seachString):
         finalPagerank.append((docId, baseScore, proximityScore, cacheScore))
     # normalize proximityScore
     totalProximityScore = reduce(lambda x,y: (0,0,x[2]+y[2]), finalPagerank)[2]
-    finalPagerank = map(lambda x: (x[0], x[1], float(float(x[2])/float(totalProximityScore)/float(10)), x[3]), finalPagerank)
+    if totalProximityScore != 0:
+        finalPagerank = map(lambda x: (x[0], x[1], float(float(x[2])/float(totalProximityScore)/float(10)), x[3]), finalPagerank)
     # normalize cacheScore
     totalCacheScore = reduce(lambda x,y: (0,0,0,x[3]+y[3]), finalPagerank)[3]
-    finalPagerank = map(lambda x: (x[0], x[1], x[2], float(float(x[3])/float(totalCacheScore)/float(10))), finalPagerank)
+    if totalCacheScore != 0:
+        finalPagerank = map(lambda x: (x[0], x[1], x[2], float(float(x[3])/float(totalCacheScore)/float(10))), finalPagerank)
     # compute final score
+    # note that it used spatial weighted average since we have three metrics to
+    # calculate the overall pagerank
     finalPagerank = map(lambda x: (x[0], float(sqrt(pow(x[1], 2) + pow(x[2], 2) + pow(x[3], 2)))), finalPagerank)
     finalPagerank.sort(key=lambda tup: tup[1])
     finalPagerank = finalPagerank[::-1]  # change order from greatest to leastest
@@ -211,21 +219,6 @@ def GetResults(seachString):
             result.append((docUrl, ParsedTitle(docTitles[docId])))
         else:
             result.append((docUrl, ParsedUrlTitle(docUrl)))
-
-    # ========================  For testing purpose ======================
-    # cur.execute('SELECT * FROM documentId')
-    # a = cur.fetchall()
-    # print len(a)
-    # pprint.pprint(a)
-    #
-    # print '============================================================='
-    # print '============================================================='
-    #
-    # cur.execute('SELECT * FROM docTitle')
-    # b = cur.fetchall()
-    # print len(b)
-    # pprint.pprint(b)
-    # ========================  For testing purpose ======================
 
     # terminate db connetion and return
     dbConnection.close()
@@ -316,7 +309,6 @@ if __name__ == "__main__":
     reload(sys)
     sys.setdefaultencoding('utf-8')
 
-    result = GetResults('computer engineering')
+    # result = GetResults('computer engineering')
+    result = GetResults('sex')
     pprint.pprint(result)
-    # result = GetResults('google is good')
-    # pprint.pprint(result)

@@ -53,7 +53,7 @@
       <a class ="spell" href="/?keywords={{"+".join(key_sug.split())}}&page_no=1">{{key_sug}}</a>
       <br>
       <span class = "spell_orig">Search instead for</span>
-      <a class ="spell_orig" href="/?keywords={{"+".join(keywords.split())}}&page_no=1">{{keywords}}</a>     
+      <a class ="spell_orig" href="/?keywords={{"+".join(keywords.split())}}&page_no=1">{{keywords}}</a>
       <br>
       </p>
       </div>
@@ -85,4 +85,3 @@
  </div>
 
  </body>
-

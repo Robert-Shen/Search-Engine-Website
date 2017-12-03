@@ -8,24 +8,28 @@ from googleapiclient.discovery import build
 import httplib2
 from beaker.middleware import SessionMiddleware
 import bottle
-from resultUrlsHelper import resultUrls
 
-############################################################################################
-# If currently is testing on local machine, set this to True;
-# before upload to AWS server, set this to False
-isLocalServer = True
-############################################################################################
+# import files from other directory
+from os.path import dirname, abspath
+import sys
+curPath = abspath(__file__)
+rootDir = abspath(dirname(dirname(curPath)))
+
+searcher = r'%s/searcher' % rootDir
+sys.path.insert(0, searcher)
+from searcher import GetResults
+
+# add correct path to templage
+myTemplate = r'%s/frontend/views/' % rootDir
+bottle.TEMPLATE_PATH.insert(0,myTemplate)
 
 globalKeywords = {}
 CLIENT_ID = "233110759621-pf3h9kl3ibncdvvdhkjcepvluedbuj2i.apps.googleusercontent.com"
 CLIENT_SECRET = "9x8veppsNgk0ZrGzxWy5RR-_"
 SCOPE = ['profile', 'email']
-ROOT = "http://ec2-52-5-119-86.compute-1.amazonaws.com"
-REDIRECT_URI = "http://ec2-52-5-119-86.compute-1.amazonaws.com/redirect"
+ROOT = '' # will be initialize in startServer()
+REDIRECT_URI = '' # will be initialize in startServer()
 cache = []
-if isLocalServer:
-    ROOT = "http://localhost:8080"
-    REDIRECT_URI = "http://localhost:8080/redirect"
 
 session_opts = {
     'session.type': 'file',
@@ -101,7 +105,7 @@ def login():
                     globalKeywords[email][word] = globalKeywords[email][word] + wordCount
                 else:
                     globalKeywords[email][word] = wordCount
-        
+
         # spell correction check
         try:
             api = datamuse.Datamuse()
@@ -115,13 +119,13 @@ def login():
             keywords_suggested = query_sug
         except (IndexError,ValueError):
         # spell correct each word if full sentence does not have valid predict
-            lowerCase = [str(api.suggest(s=x,max=10)[0]['word']) 
-                        if int(api.suggest(s=x,max=10)[0]['score'])>1000 
+            lowerCase = [str(api.suggest(s=x,max=10)[0]['word'])
+                        if int(api.suggest(s=x,max=10)[0]['score'])>1000
                         else x for x in lowerCase]
             keywords_suggested = " ".join(lowerCase)
             print keywords_suggested
 
-        urls=resultUrls(keywords_suggested)
+        urls=GetResults(keywords_suggested)
         if urls is not None:
             search = urls[(int(page_no) * 7 - 7):(int(page_no) * 7)]
             total = len(urls)/7
@@ -159,10 +163,10 @@ def login():
                                 keywords=keywords,key_sug=keywords_suggested,currentpage=1,maxpage=1)
         '''
         return template('result', searchedKeywords=keywords,
-                                  localKeywords=localKeywords, 
+                                  localKeywords=localKeywords,
                                   localCount=localCount,
-                                  loggin=loggin, 
-                                  userInfo=s, 
+                                  loggin=loggin,
+                                  userInfo=s,
                                   root=ROOT)
         '''
 
@@ -209,7 +213,14 @@ def logout():
 
 
 # Start server
-if isLocalServer:
-    run(app=app, host='localhost', port=8080, debug=True)
-else:
-    run(app=app, host='0.0.0.0', port=80)
+def startServer(isLocal, root):
+    if isLocal:
+        ROOT = "http://localhost:8080"
+    else:
+        ROOT = root
+    REDIRECT_URI = r"%s/redirect" % ROOT
+
+    if isLocal:
+        run(app=app, host='localhost', port=8080, debug=True)
+    else:
+        run(app=app, host='0.0.0.0', port=80)
