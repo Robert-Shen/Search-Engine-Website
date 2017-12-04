@@ -102,9 +102,8 @@ body{
   }
 
 .content{
-      width:600px;
+      max-width:600px;
       margin-left:90px;
-      height:650px;
       position:relative;
 }
 .content a{
@@ -130,8 +129,21 @@ body{
               font-family: arial,sans-serif;
               text-decoration-line:none;
               margin-left:30px;
+              margin-top:0px !important;              
               position:relative;
 }
+
+p.snippet{
+            display:block;
+            margin-left:30px;
+            max-height:150px;
+            width:600px;
+            white-space: normal !important;
+            font-size: small;
+            margin-top:0px !important;
+            color: #545454;
+}
+
 .content {
               display:block;
               color: black;
@@ -145,10 +157,12 @@ body{
               margin-top:30px;
               position:relative;
 }
+
 .index{
-        position:absolute;
-        bottom: 0;
-        left:128.24px;
+    position: relative;
+    bottom: 0;
+    margin-top: 50px;
+    left: 128.24px;
 }
 .pagination {
     display: inline-block;
@@ -207,3 +221,4 @@ body{
     font-size: 15px;
     text-decoration:none;
 }
+

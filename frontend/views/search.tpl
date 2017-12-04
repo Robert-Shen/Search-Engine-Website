@@ -62,11 +62,13 @@
      %for n in srch:
      <a href={{n[0]}}>{{n[1]}}</a>
      <cite>{{n[0]}}</cite>
-     <p>{{n[2]}}</p>
+     <p class="snippet">{{n[2]}}</p>
      %end
      %if not srch:
      <p style="margin-left:30px;">Oops, nothing is found...</p>
      %end
+
+ </div>
  <div class="index">
      <form action="/" method="get">
          <input type="hidden" name="keywords" value={{key_sug}}>
@@ -84,6 +86,4 @@
          </div>
      </form>
  </div>
- </div>
-
  </body>
