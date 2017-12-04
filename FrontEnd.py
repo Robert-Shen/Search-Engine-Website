@@ -67,6 +67,7 @@ def login():
 
     keywords = request.query.get('keywords')
     page_no = request.query.get('page_no')
+    origin = request.query.get('origin')
     localKeywords = []
     localCount = []
     # If we dont receive any input keywords, return to home page
@@ -102,24 +103,26 @@ def login():
                 else:
                     globalKeywords[email][word] = wordCount
         
+        keywords_suggested = keywords
+        if not origin:
         # spell correction check
-        try:
-            api = datamuse.Datamuse()
-            query = api.suggest(s=keywords ,max=10)
-            query_score = int(query[0]['score'])
-            query_sug = str(query[0]['word'])
-            print query_sug
-            print query_score
-            if query_score < 1000:
-                raise ValueError('score too low')
-            keywords_suggested = query_sug
-        except (IndexError,ValueError):
-        # spell correct each word if full sentence does not have valid predict
-            lowerCase = [str(api.suggest(s=x,max=10)[0]['word']) 
-                        if int(api.suggest(s=x,max=10)[0]['score'])>1000 
-                        else x for x in lowerCase]
-            keywords_suggested = " ".join(lowerCase)
-            print keywords_suggested
+            try:
+                api = datamuse.Datamuse()
+                query = api.suggest(s=keywords ,max=10)
+                query_score = int(query[0]['score'])
+                query_sug = str(query[0]['word'])
+                print query_sug
+                print query_score
+                if query_score < 1000:
+                    raise ValueError('score too low')
+                keywords_suggested = query_sug
+            except (IndexError,ValueError):
+            # spell correct each word if full sentence does not have valid predict
+                lowerCase = [str(api.suggest(s=x,max=10)[0]['word']) 
+                            if int(api.suggest(s=x,max=10)[0]['score'])>1000 
+                            else x for x in lowerCase]
+                keywords_suggested = " ".join(lowerCase)
+                print keywords_suggested
 
         urls=resultUrls(keywords_suggested)
         if urls is not None:
@@ -150,11 +153,11 @@ def login():
                 else:
                     pagination[n-i]=('None',n+1)
             print pagination
-            response.set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
+            #response.set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
             return template('search',loggin=loggin,userInfo=s,pgn=pagination,srch=search,
                                 keywords=keywords,key_sug=keywords_suggested,currentpage=int(page_no),maxpage=total)
         else:
-            response.set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
+            #response.set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
             return template('search',loggin=loggin,userInfo=s,pgn=[],srch=[],
                                 keywords=keywords,key_sug=keywords_suggested,currentpage=1,maxpage=1)
         '''

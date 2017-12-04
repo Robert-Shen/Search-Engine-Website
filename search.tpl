@@ -50,10 +50,10 @@
      <div class="sug">
      <p class = "suggest">
       <span class = "spell">Showing result for</span>
-      <a class ="spell" href="/?keywords={{"+".join(key_sug.split())}}&page_no=1">{{key_sug}}</a>
+      <a class ="spell" href="/?keywords={{"+".join(key_sug.split())}}&page_no=1&origin=1">{{key_sug}}</a>
       <br>
       <span class = "spell_orig">Search instead for</span>
-      <a class ="spell_orig" href="/?keywords={{"+".join(keywords.split())}}&page_no=1">{{keywords}}</a>     
+      <a class ="spell_orig" href="/?keywords={{"+".join(keywords.split())}}&page_no=1&origin=1">{{keywords}}</a>     
       <br>
       </p>
       </div>
@@ -68,7 +68,8 @@
      %end
  <div class="index">
      <form action="/" method="get">
-         <input type="hidden" name="keywords" value={{keywords}}>
+         <input type="hidden" name="keywords" value={{key_sug}}>
+          <input type="hidden" name="origin" value=1>
          <div class="pagination">
              %if currentpage is not 1:
              <button type="submit" name="page_no" value={{currentpage-1}}>&laquo</button>
