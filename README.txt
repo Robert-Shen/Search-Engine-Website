@@ -1,13 +1,21 @@
-============= Live Web Server ============
-Public DNS (IPv4):
-ec2-52-5-119-86.compute-1.amazonaws.com
+============= Instruction =============
+To deploy a new AWS EC2 instance and launch web server:
+1. Under root directory, open ‘config.py’ and modify ‘AWS_Access_Key_Id’ and ‘AWS_Secret_Access_Key’
+2. Delete any existing 'login.pem' from root directory
+3. Run ‘python awsDeployer.py’
 
-IPv4 Public IP:
-52.5.119.86
+To terminate the instance:
+1.Under root directory, run ‘python awsTerminator.py’
+2. This will default to terminate the instance you created when deployment, you can change to terminate another instance by providing instance id
+
+============= Live Web Server ============
+Public DNS and IP and istance id refers to config.py
+
+
 
 ============= How to run Backend ============
 To demonstrate the functionality of crawler and pagerank algorithm:
-1. Run crawler.py
+1. Run server.py
 2. All data will be store to persistent storage
 
 To demonstrate the persistent storage
@@ -77,4 +85,3 @@ Percentage of the requests served within a certain time (ms)
 The result of lab3 is lower than lab2, which handled 460 requests at 400 concurrencies.
 The decrease in the performance can be affected by the connection to the persistent database.
 Since every query of the keywords will establish a connection to the db, thus the workload is increased for lab3 and resulted in the decrease of performance.
-

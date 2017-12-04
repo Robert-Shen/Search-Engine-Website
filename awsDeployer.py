@@ -1,8 +1,7 @@
 import config
-import paramiko
 import os
-import config
 import sys
+import paramiko
 
 # import files from other directory
 from os.path import dirname, abspath
@@ -29,20 +28,22 @@ myPrint('AWS is setup')
 # setup app in AWS
 myPrint("Start to setup app in AWS")
 
-# copy all files to remote server
-os.system("scp -r -o StrictHostKeyChecking=no -i %s ./ ubuntu@%s:~/app" % (KEY_PAIR_FILE, str(piblicIP)) )
+# upload all files to remote server
+myPrint('Upload source files to remote server')
+os.system("scp -r -o StrictHostKeyChecking=no -i %s ./ ubuntu@%s:~/app" % (KEY_PAIR_FILE, piblicIP) )
 
 k = paramiko.RSAKey.from_private_key_file(KEY_PAIR_FILE) # must be in your current dir
 c = paramiko.SSHClient()
 c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
 c.connect( hostname = piblicIP, username = 'ubuntu', pkey = k )
 
+# download all necessary package in remote sever and launch web server
 myPrint('Start to download and install necessary packages')
 commands = [ "wget https://pypi.python.org/packages/source/b/bottle/bottle-0.12.7.tar.gz",
              "tar -zxvf bottle-0.12.7.tar.gz",
              "cd bottle-0.12.7; sudo python setup.py install --user",
              "sudo apt-get -y update",
+             "sudo apt-get -y install screen",
              "sudo apt-get -y install python-beaker",
              "sudo apt-get -y install python-requests",
              "sudo apt-get -y install npm",
@@ -53,8 +54,7 @@ commands = [ "wget https://pypi.python.org/packages/source/b/bottle/bottle-0.12.
              "sudo pip install --upgrade pip",
              "sudo pip install --upgrade virtualenv",
              "sudo pip install --upgrade oauth2client",
-             "sudo pip install --upgrade google-api-python-client",
-             "cd app; sudo nohup python server.py &"
+             "sudo pip install --upgrade google-api-python-client"
              ]# these commands will exec in series
 
 for command in commands:
@@ -63,11 +63,10 @@ for command in commands:
     print stdout.read()
     print( "Errors")
     print stderr.read()
-
+c.close()
 myPrint('All necessary packages are installed successfully')
 
-c.close()
-
+os.system("ssh -o StrictHostKeyChecking=no -i %s ubuntu@%s sudo nohup python app/launch.py" % (KEY_PAIR_FILE, piblicIP))
 myPrint("Webpage is Launched")
 
 # write all useful info to config.py

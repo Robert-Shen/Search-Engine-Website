@@ -1,8 +1,8 @@
-AWS_Access_Key_Id = "AKIAJ7YW7JS5WK44GXRA"
-AWS_Secret_Access_Key = "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"
+AWS_Access_Key_Id = "AKIAI5RAVTGQXIUN3K5A"
+AWS_Secret_Access_Key = "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"
 
-INSTANCE_ID = "i-07e43dfd64fa1f548"
-PUBLIC_DNS = "ec2-35-153-56-88.compute-1.amazonaws.com"
-PUBLIC_IP = "35.153.56.88"
+INSTANCE_ID = "i-02688cf0cd3ef25d0"
+PUBLIC_DNS = "ec2-35-153-120-14.compute-1.amazonaws.com"
+PUBLIC_IP = "35.153.120.14"
 
 KEY_PAIR_FILE_NAME = "login"

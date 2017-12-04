@@ -42,8 +42,8 @@ def SetupAWS(aws_access_key_id,
         myPrint('Existing login.pem found, no need to create new one')
 
     # check if the securityGroup already exists
-    #
-    #if len(securityGroup) == 0:
+
+    # if len(securityGroup) == 0:
     # Create a security group
     try:
         myPrint('Check if the securityGroup already exists')
