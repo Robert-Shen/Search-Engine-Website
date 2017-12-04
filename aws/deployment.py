@@ -18,7 +18,7 @@ SECURITY_GROUP_DESCRIPTION = 'My csc326 web app'
 def EstablishConnectionToAWS():
     return boto.ec2.connect_to_region('us-east-1', aws_access_key_id=AWS_SCCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 
-def Setup():
+def SetupAWS():
     connection = EstablishConnectionToAWS()
 
     # check if a keyPair already exists
@@ -55,13 +55,13 @@ def Setup():
         print('.'),
     print('instance is initialized successfully')
 
-    # The public IP address of the instance 
+    # The public IP address of the instance
     #publicIpAddress = instance.ip_address
 
     # Setup static IP address
     address = connection.allocate_address()
     address.associate(instance_id = instance.id)
-    ipAddress = address.public_ip   
+    ipAddress = address.public_ip
 
     print('------------------------------')
     print('ip address: ' + ipAddress)
@@ -76,6 +76,3 @@ def CheckInstanceStatus(connection, instanceId):
         return "none"
     else:
         return instances[0].system_status.status
-
-# launch setup program
-Setup()

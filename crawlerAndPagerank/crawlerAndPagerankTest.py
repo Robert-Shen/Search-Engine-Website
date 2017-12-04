@@ -3,12 +3,12 @@ import sqlite3
 import pprint
 
 def testLab3CrawlerWithPageRank():
-    print "===============================================================" 
+    print "==============================================================="
     print '> Test page rank socres and presistent storage'
     print ''
 
     print '> Initialize the sqlite3 database connection'
-    dbConnection = sqlite3.connect('myTable.db')
+    dbConnection = sqlite3.connect('database.db')
     dbConnection.text_factory = str
     print '> Start to initialize crawler'
     crawlerTest = crawler.crawler(dbConnection, "urls.txt")
@@ -21,7 +21,7 @@ def testLab3CrawlerWithPageRank():
     print '> Start to read from presistent storage'
     print '> Initialize DB connection'
     dbConnection = sqlite3.connect('myTable.db')
-    
+
     # we have 5 tables stored in the db:
     # lexicon: wordId (INTEGER PRIMARY KEY), word (TEXT)
     # documentId: docId (INTEGER PRIMARY KEY), url (TEXT)
