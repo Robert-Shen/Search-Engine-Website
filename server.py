@@ -13,7 +13,7 @@ from frontend import startServer
 ############################################################################################
 # When on local machine, set this to True;
 # When upload to AWS server, set this to False
-isLocalServer = True
+isLocalServer = False
 ############################################################################################
 
-startServer(isLocalServer, config.ROOT)
+startServer(isLocalServer, config.PUBLIC_DNS)

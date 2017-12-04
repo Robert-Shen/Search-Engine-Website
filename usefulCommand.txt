@@ -12,7 +12,8 @@ scp -r -i KeyPair.pem ubuntu@52.5.119.86:~/css/ /Users/SZP/desktop/temp/css/
 
 cd desktop/326lab
 cd desktop/csc326/lab
-ssh -i KeyPair.pem ubuntu@52.5.119.86
+ssh -i login.pem ubuntu@35.153.87.177
+ssh -i login.pem ec2-34-238-223-37.compute-1.amazonaws.com
 sudo nohup python FrontEnd.py &
 sudo python FrontEnd.py
 exit
@@ -20,8 +21,19 @@ exit
 sudo kill <process ID>
 
 
+> Instance_ID: i-0050a441b822abe07
+> Public_DNS: ec2-35-153-87-177.compute-1.amazonaws.com
+> Public_IP: 35.153.87.177
+
+
 scp ./desktop/lab2_group_52.zip shenzi@ug180.eecg.utoronto.ca:~/lab2_group_52.zip
 ssh shenzi@ug180.eecg.utoronto.ca
 submitcsc326f-lab 2 lab2_group_52.zip
 
 process #: 1411
+
+delete all dir: sudo rm -rf app
+
+scp -r -o StrictHostKeyChecking=no -i login.pem ./ ubuntu@34.238.223.37:~/app
+
+scp -i login.pem -r ./ ec2-34-238-223-37.compute-1.amazonaws.com

@@ -1,41 +1,37 @@
 import os
 import time
 import boto.ec2
-import setupAWS
+import deployment
+import sys
 
-connection = setupAWS.EstablishConnectionToAWS()
+def TerminateAWS(aws_id, aws_key, instanceId, ip, dns):
+    connection = deployment.EstablishConnectionToAWS(aws_id, aws_key)
 
-# get all instances
-reservations = connection.get_all_instances()
-instances = []
-for reservation in reservations:
-    for instance in reservation.instances:
-        instances.append(instance)
+    myPrint("Carefule! You are about to terminate the following instance:")
+    myPrint('Instance ID: %s' % instanceId)
+    myPrint('Public DNS: %s' % dns)
+    myPrint('Public IP: %s' % ip)
+    userComfirm = raw_input("> Is this the instance you want to terminate (y/n)? ")
+    if userComfirm == 'y':
+        connection.terminate_instances(instance_ids=[instanceId])
 
-# display information of all instances
-for i in range(len(instances)):
-    print("index: %s instanceId: %s state: %s ipAddress: %s" % (i, instances[i].id, instances[i].state, instances[i].ip_address))
-
-# let user decide which instance to terminate
-while True:
-    userInput = input("Type in 'index#' to terminate instance. Type in any other string to exit: ")
-    if userInput in range(len(instances)):
-        terminateIndex = userInput
-        terminateIndex(connection, instances[userInput])
+        if (deployment.CheckInstanceStatus(connection, [instanceId]) == 'none'):
+            myPrint("Succues: Instance %s is terminated." % instanceId)
+        else:
+            myPrint("Fail: Instance %s cannot be terminated due to some errors." % instanceId)
     else:
-        print('exit...')
-        break
+        userInput = raw_input(
+            "> Enter the instance_id of the AWS istance you wish to terminate: ")
+        try:
+            connection.terminate_instances(instance_ids=[userInput])
 
-def terminateInstance(connection, instance):
-    if instance.state != 'terminated':
-        connection.terminate_instances([instance.id])
+            if (deployment.CheckInstanceStatus(connection, [userInput]) == 'none'):
+                myPrint("Succues: Instance %s is terminated" % instanceId)
+            else:
+                myPrint("Fail: Instance %s cannot be terminated due to some errors" % userInput)
+        except:
+            myPrint('Unexpected error, termination process aborted')
 
-        print('Wait for instance to terminate'),
-        while instance.state != 'terminated':
-            time.sleep(1)
-            print('.'),
-            instance.update()
-        print('instance %s is terminated successfully' % instance.id)
-
-    else:
-        print('instance %s has already been terminated' % instance.id)
+def myPrint(text):
+    print '> %s' % text
+    sys.stdout.flush()
