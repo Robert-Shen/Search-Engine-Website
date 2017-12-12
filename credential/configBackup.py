@@ -1,4 +1,4 @@
-AWS_Access_Key_Id = "AKIAIKTIF454HWP26MOA"
-AWS_Secret_Access_Key = "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"
+AWS_Access_Key_Id = ""
+AWS_Secret_Access_Key = ""
 KEY_PAIR_FILE_NAME = 'login'
 PUBLIC_DNS = ""
